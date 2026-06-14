@@ -43,6 +43,7 @@ Core requirements:
 - Practice list and detail screens
 - Multiple solution views for practice tasks
 - Local examiner for practice answers with approach detection, score, strengths, improvements, and alternate solution styles
+- Intensive Must-Code / Coding Lab area using compiler validation and saved drill scores
 - Flashcards screen
 - Bookmarks screen
 - Search screen
@@ -62,6 +63,7 @@ Core requirements:
 - Built-in Android Text-to-Speech for lesson explanation
 - Offline code playground simulator screen
 - Optional local `javac` compiler service for capstone compile/run tests
+- Optional local `javac` compiler service for required Coding Lab drills
 - Capstone project screens with multi-file templates, automated tests, rubrics, saved grades, and local project examiner
 - Export progress as text
 - Static web version with matching curriculum, localStorage progress, real `javac` playground checks, capstone compiler checks, project grading, and local examiner feedback
@@ -88,6 +90,7 @@ Phone install recommendation:
 - 150 final exam questions
 - 447 practice exercises
 - 120 playground tasks
+- 120 required Coding Lab drills backed by local compiler validation
 - 6 multi-file capstone projects
 - 402 flashcards
 - 30 achievements
@@ -102,6 +105,7 @@ Expansion notes:
 - Questions are original and designed around understanding, dry runs, maintainability, debugging, and professional habits.
 - Web version exists under `web/` and uses `web/data/curriculum.json`.
 - Web playground now supports both beginner-safe simulation and real local `javac` compile/run checks through `tools/java-compiler-service/server.mjs`.
+- Android and web both include a Coding Lab where drills count only when code compiles and matches expected output.
 
 ## Still Pending / Needs Expansion
 

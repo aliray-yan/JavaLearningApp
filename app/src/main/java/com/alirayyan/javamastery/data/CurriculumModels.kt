@@ -193,6 +193,7 @@ data class UserProgress(
     val earnedAchievements: Set<String> = emptySet(),
     val notes: Map<String, String> = emptyMap(),
     val projectGrades: Map<String, Int> = emptyMap(),
+    val codingDrillScores: Map<String, Int> = emptyMap(),
     val totalStudyMinutes: Int = 0,
     val streakCount: Int = 0,
     val lastStudyDate: String = "",

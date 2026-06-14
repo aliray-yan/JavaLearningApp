@@ -143,6 +143,7 @@ private object Screens {
     const val Certificate = "certificate"
     const val CodeExamples = "code_examples"
     const val Playground = "playground"
+    const val CodingLab = "coding_lab"
     const val Capstones = "capstones"
     const val CapstoneDetail = "capstone_detail"
 }
@@ -164,6 +165,12 @@ private data class ExaminerReport(
     val strengths: List<String>,
     val improvements: List<String>,
     val alternativeApproaches: List<String>
+)
+
+private data class CompilerCheckResult(
+    val score: Int,
+    val passed: Boolean,
+    val message: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -191,7 +198,7 @@ fun JavaMasteryApp(
         screen = Screens.Home
     }
 
-    val canGoBack = screen !in setOf(Screens.Splash, Screens.Home, Screens.Path, Screens.Practice, Screens.Flashcards, Screens.Progress)
+    val canGoBack = screen !in setOf(Screens.Splash, Screens.Home, Screens.Path, Screens.Practice, Screens.CodingLab, Screens.Flashcards, Screens.Progress)
     val title = when (screen) {
         Screens.Home -> "Java Mastery"
         Screens.Path -> "Learning Path"
@@ -210,6 +217,7 @@ fun JavaMasteryApp(
         Screens.Certificate -> "Certificate"
         Screens.CodeExamples -> "Code Examples"
         Screens.Playground -> "Playground"
+        Screens.CodingLab -> "Coding Lab"
         Screens.Capstones -> "Capstones"
         Screens.CapstoneDetail -> "Capstone"
         else -> "Java Mastery"
@@ -242,7 +250,7 @@ fun JavaMasteryApp(
             }
         },
         bottomBar = {
-            if (screen in setOf(Screens.Home, Screens.Path, Screens.Practice, Screens.Flashcards, Screens.Progress)) {
+            if (screen in setOf(Screens.Home, Screens.Path, Screens.Practice, Screens.CodingLab, Screens.Flashcards, Screens.Progress)) {
                 BottomNav(screen) { screen = it }
             }
         }
@@ -272,6 +280,7 @@ fun JavaMasteryApp(
                     onOpenCertificate = { screen = Screens.Certificate },
                     onOpenCodeExamples = { screen = Screens.CodeExamples },
                     onOpenPlayground = { screen = Screens.Playground },
+                    onOpenCodingLab = { screen = Screens.CodingLab },
                     onOpenCapstones = { screen = Screens.Capstones }
                 )
                 Screens.Path -> LearningPathScreen(
@@ -382,6 +391,11 @@ fun JavaMasteryApp(
                 Screens.Certificate -> CertificateScreen(curriculum, progress)
                 Screens.CodeExamples -> CodeExamplesScreen(curriculum.allLessons())
                 Screens.Playground -> PlaygroundScreen(curriculum.playgroundTasks)
+                Screens.CodingLab -> CodingLabScreen(
+                    tasks = curriculum.playgroundTasks,
+                    progress = progress,
+                    onSaveScore = { taskId, score -> scope.launch { progressStore.saveCodingDrillScore(taskId, score) } }
+                )
                 Screens.Capstones -> CapstoneListScreen(
                     projects = curriculum.capstoneProjects,
                     progress = progress,
@@ -407,7 +421,7 @@ fun JavaMasteryApp(
 
 private fun previousHub(screen: String): String {
     return when (screen) {
-        Screens.Lesson, Screens.Quiz, Screens.Result, Screens.CodeExamples, Screens.Playground, Screens.Capstones -> Screens.Path
+        Screens.Lesson, Screens.Quiz, Screens.Result, Screens.CodeExamples, Screens.Playground, Screens.CodingLab, Screens.Capstones -> Screens.Path
         Screens.CapstoneDetail -> Screens.Capstones
         Screens.PracticeDetail -> Screens.Practice
         Screens.Bookmarks, Screens.Search, Screens.Achievements, Screens.Settings, Screens.Certificate -> Screens.Home
@@ -435,6 +449,12 @@ private fun BottomNav(current: String, onSelect: (String) -> Unit) {
             onClick = { onSelect(Screens.Practice) },
             icon = { Icon(Icons.Filled.Code, contentDescription = null) },
             label = { Text("Practice") }
+        )
+        NavigationBarItem(
+            selected = current == Screens.CodingLab,
+            onClick = { onSelect(Screens.CodingLab) },
+            icon = { Icon(Icons.Filled.PlayArrow, contentDescription = null) },
+            label = { Text("Code") }
         )
         NavigationBarItem(
             selected = current == Screens.Flashcards,
@@ -499,6 +519,7 @@ private fun HomeScreen(
     onOpenCertificate: () -> Unit,
     onOpenCodeExamples: () -> Unit,
     onOpenPlayground: () -> Unit,
+    onOpenCodingLab: () -> Unit,
     onOpenCapstones: () -> Unit
 ) {
     val totalLessons = curriculum.allLessons().size
@@ -543,6 +564,9 @@ private fun HomeScreen(
         }
         item {
             QuickAction("Playground", Icons.Filled.PlayArrow, Modifier.fillMaxWidth(), onOpenPlayground)
+        }
+        item {
+            QuickAction("Must-Code Lab", Icons.Filled.Code, Modifier.fillMaxWidth(), onOpenCodingLab)
         }
         item {
             QuickAction("Capstone Projects", Icons.Filled.School, Modifier.fillMaxWidth(), onOpenCapstones)
@@ -1540,6 +1564,10 @@ private fun ProgressScreen(curriculum: Curriculum, progress: UserProgress) {
                         StatPill("${progress.projectGrades.count { it.value >= 70 }}", "capstones")
                         StatPill("${progress.projectGrades.values.maxOrNull() ?: 0}%", "best project")
                     }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        StatPill("${progress.codingDrillScores.count { it.value >= 100 }}", "coding drills")
+                        StatPill("${progress.codingDrillScores.values.maxOrNull() ?: 0}%", "best drill")
+                    }
                 }
             }
         }
@@ -1599,6 +1627,7 @@ private fun derivedAchievementIds(progress: UserProgress): Set<String> = buildSe
     if (progress.completedLessons.size >= 30) add("java_master")
     if (progress.bookmarkedLessons.size >= 5) add("bookmark_builder")
     if (progress.quizScores.size >= 10) add("quiz_grinder")
+    if (progress.codingDrillScores.count { it.value >= 100 } >= 10) add("loops_master")
     if (progress.projectGrades.any { it.value >= 70 }) add("project_builder")
     if (progress.projectGrades.any { it.value >= 85 }) add("portfolio_ready")
 }
@@ -1642,6 +1671,7 @@ private fun SettingsScreen(
                         appendLine("Java Mastery progress")
                         appendLine("Completed lessons: ${progress.completedLessons.size}")
                         appendLine("Passed quizzes: ${progress.quizScores.count { it.value >= 70 }}")
+                        appendLine("Passed coding drills: ${progress.codingDrillScores.count { it.value >= 100 }}")
                         appendLine("Study minutes: ${progress.totalStudyMinutes}")
                         appendLine("Streak: ${progress.streakCount}")
                     }
@@ -1937,6 +1967,85 @@ private suspend fun runCompilerService(baseUrl: String, project: CapstoneProject
     }
 }
 
+private suspend fun runCodingDrillCompiler(baseUrl: String, task: PlaygroundTask, code: String): CompilerCheckResult = withContext(Dispatchers.IO) {
+    runCatching {
+        val payload = JSONObject()
+        payload.put("mainClass", "Main")
+        payload.put("files", JSONArray().apply {
+            put(JSONObject().apply {
+                put("path", "Main.java")
+                put("content", code)
+            })
+        })
+        payload.put("tests", JSONArray().apply {
+            put(JSONObject().apply {
+                put("id", "${task.id}-smoke")
+                put("name", "Compile and run coding drill")
+                put("input", "")
+                put("expectedOutput", task.expectedOutput)
+                put("points", 100)
+            })
+        })
+
+        val normalized = baseUrl.trim().trimEnd('/')
+        val connection = (URL("$normalized/run").openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            connectTimeout = 8000
+            readTimeout = 15000
+            doOutput = true
+            setRequestProperty("Content-Type", "application/json")
+        }
+        connection.outputStream.use { it.write(payload.toString().toByteArray(Charsets.UTF_8)) }
+        val stream = if (connection.responseCode in 200..299) connection.inputStream else connection.errorStream
+        val body = stream.bufferedReader().use { it.readText() }
+        val json = JSONObject(body)
+        val score = json.optInt("score", 0)
+        val passed = json.optBoolean("ok", false) && score >= 100
+        val tests = json.optJSONArray("tests")
+        val testSummary = buildString {
+            appendLine(if (passed) "PASS: Required coding drill passed." else "NOT PASSED: Keep fixing and run again.")
+            appendLine("Compiler score: $score%")
+            val compile = json.optJSONObject("compile")
+            val stderr = compile?.optString("stderr").orEmpty()
+            if (stderr.isNotBlank()) {
+                appendLine()
+                appendLine("Compiler messages:")
+                appendLine(stderr)
+            }
+            if (tests != null) {
+                for (index in 0 until tests.length()) {
+                    val test = tests.optJSONObject(index)
+                    if (test != null) {
+                        appendLine()
+                        appendLine("${if (test.optBoolean("passed")) "PASS" else "FAIL"} - ${test.optString("name")}")
+                        appendLine("Expected:")
+                        appendLine(test.optString("expectedOutput"))
+                        appendLine("Actual:")
+                        appendLine(test.optString("actualOutput"))
+                        val testError = test.optString("stderr")
+                        if (testError.isNotBlank()) {
+                            appendLine("stderr:")
+                            appendLine(testError)
+                        }
+                    }
+                }
+            }
+            val note = json.optString("note")
+            if (note.isNotBlank()) {
+                appendLine()
+                appendLine(note)
+            }
+        }
+        CompilerCheckResult(score = score, passed = passed, message = testSummary)
+    }.getOrElse { error ->
+        CompilerCheckResult(
+            score = 0,
+            passed = false,
+            message = "Could not reach compiler service: ${error.message}\n\nStart it with: node tools/java-compiler-service/server.mjs"
+        )
+    }
+}
+
 @Composable
 private fun CertificateScreen(curriculum: Curriculum, progress: UserProgress) {
     val context = LocalContext.current
@@ -1984,6 +2093,143 @@ private fun CertificateScreen(curriculum: Curriculum, progress: UserProgress) {
             Icon(Icons.Filled.Share, contentDescription = null)
             Spacer(Modifier.width(6.dp))
             Text("Share Certificate Text")
+        }
+    }
+}
+
+@Composable
+private fun CodingLabScreen(
+    tasks: List<PlaygroundTask>,
+    progress: UserProgress,
+    onSaveScore: (String, Int) -> Unit
+) {
+    if (tasks.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No coding drills yet.")
+        }
+        return
+    }
+
+    val scope = rememberCoroutineScope()
+    var selectedId by rememberSaveable { mutableStateOf(tasks.first().id) }
+    val selectedTask = tasks.firstOrNull { it.id == selectedId } ?: tasks.first()
+    var code by rememberSaveable(selectedTask.id) { mutableStateOf(selectedTask.starterCode) }
+    var compilerUrl by rememberSaveable { mutableStateOf("http://10.0.2.2:4190") }
+    var result by rememberSaveable(selectedTask.id) { mutableStateOf("") }
+    var running by rememberSaveable(selectedTask.id) { mutableStateOf(false) }
+    val passedCount = progress.codingDrillScores.count { it.value >= 100 }
+    val selectedScore = progress.codingDrillScores[selectedTask.id] ?: 0
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            Text("Intensive Must-Code Lab", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text("Reading helps, but Java skill is earned by writing code. A drill counts only after your code compiles and matches the expected output.")
+        }
+        item {
+            ElevatedCard(shape = RoundedCornerShape(8.dp)) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Validated coding drills", fontWeight = FontWeight.Bold)
+                        Text("$passedCount/${tasks.size}")
+                    }
+                    LinearProgressIndicator(
+                        progress = passedCount.toFloat() / tasks.size.toFloat(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+        item {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(tasks) { task ->
+                    val passed = (progress.codingDrillScores[task.id] ?: 0) >= 100
+                    FilterChip(
+                        selected = task.id == selectedTask.id,
+                        onClick = {
+                            selectedId = task.id
+                            result = ""
+                            running = false
+                        },
+                        label = { Text("${if (passed) "PASS " else ""}L${task.levelId}: ${task.title}", maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                    )
+                }
+            }
+        }
+        item {
+            ElevatedCard(shape = RoundedCornerShape(8.dp)) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(selectedTask.title, fontWeight = FontWeight.Bold)
+                        Text(if (selectedScore >= 100) "Passed" else "Required", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                    }
+                    Text(selectedTask.prompt)
+                    TagRow(selectedTask.tags)
+                }
+            }
+        }
+        item {
+            OutlinedTextField(
+                value = code,
+                onValueChange = {
+                    code = it
+                    result = ""
+                },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 12,
+                label = { Text("Write Java code that passes the test") }
+            )
+        }
+        item {
+            OutlinedTextField(
+                value = compilerUrl,
+                onValueChange = { compilerUrl = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Compiler service URL") }
+            )
+            Spacer(Modifier.height(8.dp))
+            Text("Use 10.0.2.2 on Android emulator. On a real phone, use your computer's LAN IP while the compiler service is running.")
+        }
+        item {
+            Button(
+                enabled = !running,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    running = true
+                    result = "Running required compiler test..."
+                    scope.launch {
+                        val check = runCodingDrillCompiler(compilerUrl, selectedTask, code)
+                        result = check.message
+                        running = false
+                        if (check.passed) onSaveScore(selectedTask.id, check.score)
+                    }
+                }
+            ) {
+                Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                Spacer(Modifier.width(6.dp))
+                Text(if (running) "Running..." else "Run Required Test")
+            }
+        }
+        if (result.isNotBlank()) {
+            item {
+                SectionTitle("Validation Result")
+                CodeBlock(result)
+            }
+        }
+        item {
+            SectionTitle("Expected Output")
+            CodeBlock(selectedTask.expectedOutput)
+        }
+        item {
+            SectionTitle("Required Checks")
+            BulletList(selectedTask.checks)
+        }
+        item {
+            SectionTitle("Hints")
+            BulletList(selectedTask.hints)
         }
     }
 }

@@ -16,6 +16,7 @@ function loadProgress() {
     notes: {},
     achievements: [],
     projectGrades: {},
+    codingDrillScores: {},
     streak: 0,
     lastStudyDate: "",
     totalStudyMinutes: 0,
@@ -87,6 +88,7 @@ function shell(title, body) {
     ["home", "Home"],
     ["path", "Learning Path"],
     ["practice", "Practice"],
+    ["coding", "Coding Lab"],
     ["capstones", "Capstones"],
     ["playground", "Playground"],
     ["flashcards", "Flashcards"],
@@ -134,6 +136,7 @@ function render() {
     quiz: renderQuiz,
     practice: renderPractice,
     exercise: renderExercise,
+    coding: renderCodingLab,
     capstones: renderCapstones,
     capstone: renderCapstone,
     playground: renderPlayground,
@@ -173,6 +176,7 @@ function renderHome() {
     <section class="grid two section">
       <button onclick="go('path')">Open Learning Path</button>
       <button onclick="go('playground')">Open Playground</button>
+      <button onclick="go('coding')">Must-Code Lab</button>
       <button onclick="go('practice')">Practice Exercises</button>
       <button onclick="go('capstones')">Capstone Projects</button>
       <button onclick="go('certificate')">Certificate</button>
@@ -402,6 +406,47 @@ function renderExercise() {
   `);
 }
 
+function renderCodingLab() {
+  const taskId = state.params.id || state.curriculum.playgroundTasks[0]?.id;
+  const task = state.curriculum.playgroundTasks.find(item => item.id === taskId) || state.curriculum.playgroundTasks[0];
+  if (!task) return shell("Coding Lab", `<p>No coding drills yet.</p>`);
+  const compilerUrl = localStorage.getItem("javaMasteryCompilerUrl") || "http://127.0.0.1:4190";
+  const savedCode = localStorage.getItem(`javaMasteryCodingDrill:${task.id}`) || task.starterCode;
+  const passed = Object.values(state.progress.codingDrillScores || {}).filter(score => score >= 100).length;
+  const selectedScore = (state.progress.codingDrillScores || {})[task.id] || 0;
+  return shell("Coding Lab", `
+    <section class="card">
+      <h3>Intensive Must-Code Lab</h3>
+      <p>Reading helps, but Java skill is earned by writing code. A drill counts only after your code compiles and matches the expected output.</p>
+      <div class="row space"><strong>Validated drills</strong><span>${passed}/${state.curriculum.playgroundTasks.length}</span></div>
+      <div class="progress"><span style="width:${pct(passed, state.curriculum.playgroundTasks.length)}%"></span></div>
+    </section>
+    <div class="tabs section">${state.curriculum.playgroundTasks.map(t => {
+      const isPassed = ((state.progress.codingDrillScores || {})[t.id] || 0) >= 100;
+      return `<button class="${t.id === task.id ? "" : "secondary"}" onclick="go('coding', {id:'${t.id}'})">${isPassed ? "PASS " : ""}L${t.levelId}: ${escapeHtml(t.title)}</button>`;
+    }).join("")}</div>
+    <section class="card">
+      <div class="row space"><h3>${escapeHtml(task.title)}</h3><span class="pill">${selectedScore >= 100 ? "Passed" : "Required"}</span></div>
+      <p>${escapeHtml(task.prompt)}</p>
+      ${chips(task.tags.slice(0, 5))}
+      <textarea id="codingCode" spellcheck="false">${escapeHtml(savedCode)}</textarea>
+      <div class="section">
+        <h3>Required Compiler Test</h3>
+        <p class="muted">Start <code>node tools/java-compiler-service/server.mjs</code>, then run the required test. This sends code only to your local computer.</p>
+        <input id="codingCompilerUrl" value="${escapeHtml(compilerUrl)}" placeholder="http://127.0.0.1:4190">
+        <div class="row section">
+          <button onclick="runCodingDrill('${task.id}')">Run Required Test</button>
+          <button class="secondary" onclick="resetCodingDrill('${task.id}')">Reset Starter</button>
+        </div>
+        <div id="codingResult" class="section"></div>
+      </div>
+      ${section("Expected Output", code(task.expectedOutput))}
+      ${listSection("Required Checks", task.checks)}
+      ${listSection("Hints", task.hints)}
+    </section>
+  `);
+}
+
 function renderPlayground() {
   const taskId = state.params.id || state.curriculum.playgroundTasks[0]?.id;
   const task = state.curriculum.playgroundTasks.find(item => item.id === taskId) || state.curriculum.playgroundTasks[0];
@@ -468,11 +513,13 @@ function renderProgress() {
   const percent = pct(state.progress.completedLessons.length, lessons.length);
   const passed = Object.values(state.progress.quizScores).filter(score => score >= 70).length;
   const projectPassed = Object.values(state.progress.projectGrades || {}).filter(score => score >= 70).length;
+  const codingPassed = Object.values(state.progress.codingDrillScores || {}).filter(score => score >= 100).length;
   return shell("Progress", `
     <div class="grid three">
       ${statCard(`${percent}%`, "Overall progress")}
       ${statCard(`${passed}`, "Passed quizzes")}
       ${statCard(`${projectPassed}`, "Passed capstones")}
+      ${statCard(`${codingPassed}`, "Passed coding drills")}
     </div>
     <section class="card section">
       <div class="progress"><span style="width:${percent}%"></span></div>
@@ -485,6 +532,10 @@ function renderProgress() {
     <section class="card section">
       <h3>Project Grades</h3>
       ${Object.entries(state.progress.projectGrades || {}).map(([id, score]) => `<p><strong>${escapeHtml(id)}</strong>: ${score}%</p>`).join("") || "<p>No project grades yet.</p>"}
+    </section>
+    <section class="card section">
+      <h3>Coding Lab Scores</h3>
+      ${Object.entries(state.progress.codingDrillScores || {}).map(([id, score]) => `<p><strong>${escapeHtml(id)}</strong>: ${score}%</p>`).join("") || "<p>No coding drills passed yet.</p>"}
     </section>
   `);
 }
@@ -869,6 +920,49 @@ function finishQuiz() {
   go("path");
 }
 
+async function runCodingDrill(taskId) {
+  const task = state.curriculum.playgroundTasks.find(item => item.id === taskId);
+  const codeText = document.getElementById("codingCode").value;
+  const resultBox = document.getElementById("codingResult");
+  const compilerUrl = document.getElementById("codingCompilerUrl").value.replace(/\/$/, "");
+  localStorage.setItem(`javaMasteryCodingDrill:${taskId}`, codeText);
+  localStorage.setItem("javaMasteryCompilerUrl", compilerUrl);
+  resultBox.innerHTML = `<p>Running required compiler test...</p>`;
+  try {
+    const response = await fetch(`${compilerUrl}/run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mainClass: "Main",
+        files: [{ path: "Main.java", content: codeText }],
+        tests: [{
+          id: `${task.id}-smoke`,
+          name: "Compile and run coding drill",
+          input: "",
+          expectedOutput: task.expectedOutput,
+          points: 100
+        }]
+      })
+    });
+    const data = await response.json();
+    resultBox.innerHTML = compilerResultHtml(data);
+    if (data.ok && Number(data.score || 0) >= 100) {
+      state.progress.codingDrillScores = state.progress.codingDrillScores || {};
+      state.progress.codingDrillScores[taskId] = Math.max(state.progress.codingDrillScores[taskId] || 0, Number(data.score || 0));
+      markStudy(10);
+    }
+  } catch (error) {
+    resultBox.innerHTML = `<div class="card"><strong>Could not reach compiler service.</strong><p>${escapeHtml(error.message)}</p><p>Start it with: <code>node tools/java-compiler-service/server.mjs</code></p></div>`;
+  }
+}
+
+function resetCodingDrill(taskId) {
+  const task = state.curriculum.playgroundTasks.find(item => item.id === taskId);
+  document.getElementById("codingCode").value = task.starterCode;
+  document.getElementById("codingResult").innerHTML = "";
+  localStorage.removeItem(`javaMasteryCodingDrill:${taskId}`);
+}
+
 function runPlayground(taskId) {
   const task = state.curriculum.playgroundTasks.find(item => item.id === taskId);
   const codeText = document.getElementById("playCode").value;
@@ -1009,6 +1103,7 @@ function derivedAchievements() {
   if (state.progress.completedLessons.length >= 10) earned.push("java_basics_completed");
   if (state.progress.completedLessons.length >= 30) earned.push("java_master");
   if (state.progress.bookmarks.length >= 5) earned.push("bookmark_builder");
+  if (Object.values(state.progress.codingDrillScores || {}).filter(score => score >= 100).length >= 10) earned.push("loops_master");
   if (Object.values(state.progress.projectGrades || {}).some(score => score >= 70)) earned.push("project_builder");
   if (Object.values(state.progress.projectGrades || {}).some(score => score >= 85)) earned.push("portfolio_ready");
   return earned;
@@ -1062,6 +1157,8 @@ window.answerQuiz = answerQuiz;
 window.nextQuiz = nextQuiz;
 window.prevQuiz = prevQuiz;
 window.finishQuiz = finishQuiz;
+window.runCodingDrill = runCodingDrill;
+window.resetCodingDrill = resetCodingDrill;
 window.runPlayground = runPlayground;
 window.runPlaygroundCompiler = runPlaygroundCompiler;
 window.resetPlayground = resetPlayground;

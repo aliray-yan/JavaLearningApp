@@ -14,7 +14,7 @@
 
 ## What Is Implemented
 
-- Splash, Home, Learning Path, Level Detail, Lesson Reader, Quiz, Quiz Result, Practice, Practice Detail, Flashcards, Bookmarks, Search, Progress, Achievements, Settings, Certificate, Code Examples, Playground, Capstones, and Capstone Detail screens.
+- Splash, Home, Learning Path, Level Detail, Lesson Reader, Quiz, Quiz Result, Practice, Practice Detail, Coding Lab, Flashcards, Bookmarks, Search, Progress, Achievements, Settings, Certificate, Code Examples, Playground, Capstones, and Capstone Detail screens.
 - Static web version under `web/`.
 - Offline curriculum stored in `app/src/main/assets/curriculum.json`.
 - 30 Java levels from absolute computer/programming basics to expert Java topics.
@@ -24,6 +24,7 @@
 - 150 final exam questions.
 - 447 practice exercises with hints, expected output, and multiple solution approaches.
 - 120 playground tasks.
+- 120 required Coding Lab drills using the same task bank, with local compiler validation and saved pass scores.
 - 6 multi-file capstone projects with tests, rubrics, and saved grades.
 - 402 flashcards.
 - 30 achievements.
@@ -112,7 +113,7 @@ Open:
 http://127.0.0.1:4188
 ```
 
-The web version includes learning path, lessons, quizzes, practice, local examiner feedback, wrong-solution review, capstones, project grading, optional compiler-service checks, flashcards, bookmarks, search, progress, achievements, settings, certificate, code examples, the offline playground simulator, and real `javac` playground runs through the local compiler service.
+The web version includes learning path, lessons, quizzes, practice, local examiner feedback, wrong-solution review, required Coding Lab drills, capstones, project grading, optional compiler-service checks, flashcards, bookmarks, search, progress, achievements, settings, certificate, code examples, the offline playground simulator, and real `javac` playground runs through the local compiler service.
 
 ## Folder Structure
 
@@ -264,6 +265,6 @@ Version 3:
 ## Current Limits
 
 - The app now has a large job-ready academy foundation, but the hardest topics can still benefit from more hand-authored long-form walkthroughs, diagrams, and project milestones.
-- The Android beginner playground is still simulated. Real `javac` compile/run checks are available for Android capstones and the web playground/capstones through the optional local desktop compiler service.
+- The Android beginner playground is still simulated. Real `javac` compile/run checks are available for Android Coding Lab drills/capstones and the web Coding Lab/playground/capstones through the optional local desktop compiler service.
 - The examiner is local and heuristic. It is useful for coaching, approach review, and maintainability feedback, while compiler tests remain the final proof for runnable code.
 - The web app is implemented as a static local app. PWA install support can be added later.

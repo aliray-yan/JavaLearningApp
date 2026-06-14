@@ -28,6 +28,7 @@ class ProgressStore(private val context: Context) {
         val achievements = stringPreferencesKey("achievements")
         val notes = stringPreferencesKey("notes")
         val projectGrades = stringPreferencesKey("project_grades")
+        val codingDrillScores = stringPreferencesKey("coding_drill_scores")
         val studyMinutes = intPreferencesKey("study_minutes")
         val streak = intPreferencesKey("streak")
         val lastStudyDate = stringPreferencesKey("last_study_date")
@@ -44,6 +45,7 @@ class ProgressStore(private val context: Context) {
             earnedAchievements = decodeSet(prefs[Keys.achievements]),
             notes = decodeStringMap(prefs[Keys.notes]),
             projectGrades = decodeIntMap(prefs[Keys.projectGrades]),
+            codingDrillScores = decodeIntMap(prefs[Keys.codingDrillScores]),
             totalStudyMinutes = prefs[Keys.studyMinutes] ?: 0,
             streakCount = prefs[Keys.streak] ?: 0,
             lastStudyDate = prefs[Keys.lastStudyDate] ?: "",
@@ -109,6 +111,17 @@ class ProgressStore(private val context: Context) {
         }
     }
 
+    suspend fun saveCodingDrillScore(taskId: String, score: Int) {
+        context.progressDataStore.edit { prefs ->
+            val scores = decodeIntMap(prefs[Keys.codingDrillScores]).toMutableMap()
+            scores[taskId] = max(scores[taskId] ?: 0, score)
+            prefs[Keys.codingDrillScores] = encodeIntMap(scores)
+            prefs[Keys.studyMinutes] = (prefs[Keys.studyMinutes] ?: 0) + 10
+            updateStreak(prefs)
+            applySimpleAchievements(prefs)
+        }
+    }
+
     suspend fun setDarkMode(enabled: Boolean) {
         context.progressDataStore.edit { prefs -> prefs[Keys.darkMode] = enabled }
     }
@@ -147,6 +160,7 @@ class ProgressStore(private val context: Context) {
         val completed = decodeSet(prefs[Keys.completedLessons])
         val scores = decodeIntMap(prefs[Keys.quizScores])
         val grades = decodeIntMap(prefs[Keys.projectGrades])
+        val codingScores = decodeIntMap(prefs[Keys.codingDrillScores])
         val achievements = decodeSet(prefs[Keys.achievements]).toMutableSet()
 
         if (completed.isNotEmpty()) achievements += "first_lesson"
@@ -154,6 +168,7 @@ class ProgressStore(private val context: Context) {
         if ((prefs[Keys.streak] ?: 0) >= 7) achievements += "seven_day_streak"
         if (completed.size >= 10) achievements += "java_basics_completed"
         if (grades.any { it.value >= 70 }) achievements += "project_builder"
+        if (codingScores.count { it.value >= 100 } >= 10) achievements += "quiz_grinder"
         if (completed.size >= 30) achievements += "java_master"
 
         prefs[Keys.achievements] = encodeSet(achievements)
