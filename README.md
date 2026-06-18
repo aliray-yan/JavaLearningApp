@@ -102,6 +102,20 @@ app/build/outputs/apk/release/app-release-unsigned.apk
 
 The web app is in `web/` and uses the same curriculum data copied to `web/data/curriculum.json`.
 
+### One-click Windows launcher
+
+Double-click:
+
+```text
+JavaMasteryLauncher.exe
+```
+
+The launcher starts the local web server, starts the Java compiler service, opens Java Mastery in Google Chrome, asks for confirmation when the Chrome app window is closed, and then stops the launcher-owned server processes.
+
+A desktop shortcut named `Java Mastery Web` can point to this executable.
+
+### Manual web commands
+
 ```powershell
 cd web
 python -m http.server 4188 --bind 127.0.0.1

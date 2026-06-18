@@ -30,6 +30,9 @@ pnpm-debug.log*
 # Local browser smoke-test artifacts
 web/tmp-chrome*/
 web/*-smoke.png
+.launcher/
+.launcher-profile/
+launcher/*.pdb
 
 # Downloaded reference archives should stay local
 external_resources/**/*.zip

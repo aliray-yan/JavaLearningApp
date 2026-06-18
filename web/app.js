@@ -1,4 +1,15 @@
 const STORAGE_KEY = "javaMasteryWebProgress.v1";
+const launchParams = new URLSearchParams(location.search);
+if (launchParams.get("launcher") === "1") {
+  sessionStorage.setItem("javaMasteryLauncherMode", "1");
+}
+
+window.addEventListener("beforeunload", event => {
+  if (sessionStorage.getItem("javaMasteryLauncherMode") === "1") {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
 
 const state = {
   curriculum: null,

@@ -67,6 +67,7 @@ Core requirements:
 - Capstone project screens with multi-file templates, automated tests, rubrics, saved grades, and local project examiner
 - Export progress as text
 - Static web version with matching curriculum, localStorage progress, real `javac` playground checks, capstone compiler checks, project grading, and local examiner feedback
+- Windows one-click launcher `JavaMasteryLauncher.exe` that starts local servers, opens Chrome, prompts on close, and cleans up launcher-owned processes
 - External public/open resources downloaded into `external_resources/` for future reference
 - Debug APK builds successfully
 - Unsigned release APK builds successfully
@@ -146,6 +147,10 @@ Important files:
 - `web/styles.css`
 - `web/app.js`
 - `web/data/curriculum.json`
+- `JavaMasteryLauncher.exe`
+- `launcher/JavaMasteryLauncher.cs`
+- `launcher/make-icon.ps1`
+- `launcher/JavaMastery.ico`
 - `README.md`
 - `TODO_ROADMAP.md`
 
