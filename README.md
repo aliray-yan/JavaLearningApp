@@ -17,17 +17,19 @@
 - Splash, Home, Learning Path, Level Detail, Lesson Reader, Quiz, Quiz Result, Practice, Practice Detail, Coding Lab, Flashcards, Bookmarks, Search, Progress, Achievements, Settings, Certificate, Code Examples, Playground, Capstones, and Capstone Detail screens.
 - Static web version under `web/`.
 - Offline curriculum stored in `app/src/main/assets/curriculum.json`.
-- 30 Java levels from absolute computer/programming basics to expert Java topics.
-- 402 lessons.
-- 3,216 lesson quiz questions.
-- 6 final exams, one after every 5 levels.
-- 150 final exam questions.
-- 447 practice exercises with hints, expected output, and multiple solution approaches.
-- 120 playground tasks.
-- 120 required Coding Lab drills using the same task bank, with local compiler validation and saved pass scores.
-- 6 multi-file capstone projects with tests, rubrics, and saved grades.
-- 402 flashcards.
-- 30 achievements.
+- 31 Java levels from absolute computer/programming basics to expert Java topics and a dedicated Java Android developer track.
+- 414 lessons.
+- 3,312 lesson quiz questions.
+- 7 final exams, one after every 5 levels plus an Android developer track final.
+- 175 final exam questions.
+- 485 practice exercises with hints, expected output, and multiple solution approaches.
+- 161 playground tasks.
+- 161 required Coding Lab drills using the same task bank, with local compiler validation and saved pass scores.
+- 16 multi-file capstone projects with tests, rubrics, and saved grades.
+- 414 flashcards.
+- 33 achievements.
+- Java Android developer track covering calculator, to-do, quiz, notes, RecyclerView, Room, Retrofit/API, Firebase-free offline apps, MVVM, XML/Compose concepts, and APK signing/release workflow.
+- Original build-your-own style Java projects inspired by open references, including HTTP server core, JSON parser, grep-style search, Redis-style key-value store, Git-lite object store, and Spring Security flow simulator.
 - Local examiner for practice answers and capstone project approaches. It gives an offline score, detected approach, strengths, improvement advice, and alternate solution styles without using an API.
 - Optional local `javac` compiler service for real playground and capstone compile/run checks.
 - Local progress tracking for completed lessons, quiz scores, bookmarks, notes, streak, study minutes, unlocked level, dark mode, and practice mode.
@@ -231,6 +233,9 @@ Downloaded references include:
 - TheAlgorithms Java
 - Java Design Patterns
 - small public Kaggle programming-language context datasets
+- CodeCrafters Build Your Own X, used as inspiration for original from-scratch Java project prompts
+- JavaRevisited simple HTTP server article, used only as conceptual HTTP server inspiration
+- Spring official "Securing a Web Application" guide, used as conceptual Spring Security inspiration
 
 Check each source license before copying any external text or code directly into the app.
 

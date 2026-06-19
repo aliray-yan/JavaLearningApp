@@ -464,7 +464,7 @@ function renderPlayground() {
   if (!task) return shell("Playground", `<p>No playground tasks yet.</p>`);
   const compilerUrl = localStorage.getItem("javaMasteryCompilerUrl") || "http://127.0.0.1:4190";
   return shell("Playground", `
-    <div class="tabs">${state.curriculum.playgroundTasks.slice(0, 40).map(t => `<button class="${t.id === task.id ? "" : "secondary"}" onclick="go('playground', {id:'${t.id}'})">L${t.levelId}: ${escapeHtml(t.title)}</button>`).join("")}</div>
+    <div class="tabs">${state.curriculum.playgroundTasks.map(t => `<button class="${t.id === task.id ? "" : "secondary"}" onclick="go('playground', {id:'${t.id}'})">L${t.levelId}: ${escapeHtml(t.title)}</button>`).join("")}</div>
     <section class="card">
       <h3>${escapeHtml(task.title)}</h3>
       <p>${escapeHtml(task.prompt)}</p>

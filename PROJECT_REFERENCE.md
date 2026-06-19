@@ -21,7 +21,7 @@ Core requirements:
 - Clean beginner-friendly architecture
 - Buildable APK
 - Local expandable curriculum data
-- Java levels 0 through 29
+- Java levels 0 through 30
 - Lessons, quizzes, practice, flashcards, progress, badges, bookmarks, search, streak, final exams, certificate, dark/light mode
 - Practical job-ready path with real projects, scalable-code thinking, clean code, OOP, DSA, testing, databases, networking, Android basics, advanced Java, and portfolio projects
 
@@ -69,6 +69,8 @@ Core requirements:
 - Static web version with matching curriculum, localStorage progress, real `javac` playground checks, capstone compiler checks, project grading, and local examiner feedback
 - Windows one-click launcher `JavaMasteryLauncher.exe` that starts local servers, opens Chrome, prompts on close, and cleans up launcher-owned processes
 - External public/open resources downloaded into `external_resources/` for future reference
+- Dedicated Java for Android Developer Track covering Java Android calculator, to-do, quiz, notes, RecyclerView, Room, Retrofit/API, Firebase-free offline app design, MVVM, XML/Compose concepts, and APK signing/release workflow
+- Original build-your-own style Java projects inspired by CodeCrafters Build Your Own X, JavaRevisited HTTP server concepts, and the official Spring Security getting-started guide
 - Debug APK builds successfully
 - Unsigned release APK builds successfully
 
@@ -84,17 +86,17 @@ Phone install recommendation:
 
 ## Current Content Baseline After Full Academy Expansion Pass
 
-- 30 levels
-- 402 lessons
-- 3,216 lesson quiz questions
-- 6 final exams
-- 150 final exam questions
-- 447 practice exercises
-- 120 playground tasks
-- 120 required Coding Lab drills backed by local compiler validation
-- 6 multi-file capstone projects
-- 402 flashcards
-- 30 achievements
+- 31 levels
+- 414 lessons
+- 3,312 lesson quiz questions
+- 7 final exams
+- 175 final exam questions
+- 485 practice exercises
+- 161 playground tasks
+- 161 required Coding Lab drills backed by local compiler validation
+- 16 multi-file capstone projects
+- 414 flashcards
+- 33 achievements
 
 Expansion notes:
 
@@ -102,17 +104,19 @@ Expansion notes:
 - Lessons include deep-dive sections, real-work usage notes, dry-run guidance, and mastery checklists.
 - Practice exercises include constraints, sample input/output, dry-run guidance, common wrong solutions, trade-offs, rubrics, and direct/method/scalable solution views.
 - Practice and capstone screens include a local rule-based examiner that reviews learner answers without APIs. It recognizes direct, method-based, OOP, collections, stream, input-driven, decision-based, loop-based, and test-aware approaches, then gives remarks and improvement advice.
-- Project practice now includes calculator, guessing game, grade system, bank account, library management, to-do, expense tracker, quiz app, contact book, REST client, JDBC CRUD, inventory system, DSA drills, testing drills, security drills, performance drills, and portfolio refactoring.
+- Project practice now includes calculator, guessing game, grade system, bank account, library management, to-do, expense tracker, quiz app, contact book, REST client, JDBC CRUD, inventory system, DSA drills, testing drills, security drills, performance drills, portfolio refactoring, Java Android apps, RecyclerView, Room, Retrofit, MVVM, APK release workflow, and build-your-own Java systems projects.
 - Questions are original and designed around understanding, dry runs, maintainability, debugging, and professional habits.
 - Web version exists under `web/` and uses `web/data/curriculum.json`.
 - Web playground now supports both beginner-safe simulation and real local `javac` compile/run checks through `tools/java-compiler-service/server.mjs`.
 - Android and web both include a Coding Lab where drills count only when code compiles and matches expected output.
+- Generator now writes both `app/src/main/assets/curriculum.json` and `web/data/curriculum.json`, so mobile and web curriculum stay synchronized.
 
 ## Still Pending / Needs Expansion
 
 - More hand-authored long-form explanations and walkthroughs for the hardest topics
 - More full capstone project milestones with screenshots/diagrams
-- More realistic multi-file project templates beyond the first six capstones
+- More realistic multi-file project templates beyond the current starter capstones
+- More full native Android Studio starter projects that learners can open separately from the learning app
 - More DSA problems with detailed dry-run tables
 - More interview-style explanation prompts and answer rubrics
 - Full in-app Java compiler-grade playground without a companion desktop service

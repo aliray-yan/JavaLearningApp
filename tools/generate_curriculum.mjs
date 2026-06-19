@@ -586,6 +586,24 @@ const levelSpecs = [
       "API design principles",
       "Production readiness checklist"
     ]
+  },
+  {
+    title: "Java for Android Developer Track",
+    focus: "building Android apps with Java, clean architecture, offline storage, APIs, testing, and APK release skills",
+    topics: [
+      "Build Java Android calculator",
+      "Build Java Android to-do app",
+      "Build Java Android quiz app",
+      "Build Java Android notes app",
+      "RecyclerView projects",
+      "Room database projects",
+      "Retrofit/API project",
+      "Firebase-free offline app project",
+      "MVVM Android architecture",
+      "XML UI and Compose concepts",
+      "APK signing/release workflow",
+      "Android portfolio debugging and polish"
+    ]
   }
 ];
 
@@ -599,7 +617,13 @@ const definitionOverrides = new Map([
   ["What is a collection?", "A collection is a ready-made container for groups of values, such as a list of names, a set of unique IDs, or a map from username to score."],
   ["What are generics?", "Generics let you write reusable code while still telling Java what type of value is allowed. They help stop type mistakes early."],
   ["What is a thread?", "A thread is a path of work inside a program. Multiple threads can let a program do more than one job at a time."],
-  ["Big O notation", "Big O describes how code slows down as the input grows. It helps you compare approaches before a program becomes too large."]
+  ["Big O notation", "Big O describes how code slows down as the input grows. It helps you compare approaches before a program becomes too large."],
+  ["Build Java Android calculator", "An Android calculator is a small app where Java reads button taps, validates numbers, calls a calculator service, and shows the result on the screen."],
+  ["RecyclerView projects", "RecyclerView is Android's efficient list UI. It reuses row views instead of creating thousands of screen objects, which keeps scrolling smooth."],
+  ["Room database projects", "Room is Android's local database library. It helps Java classes talk to SQLite using Entity, DAO, and Database classes."],
+  ["Retrofit/API project", "Retrofit is a popular Android HTTP client. It lets you describe API calls with Java interfaces, then it handles request and response work."],
+  ["MVVM Android architecture", "MVVM splits Android code into Model, View, and ViewModel. The screen shows state, the ViewModel prepares state, and repositories handle data."],
+  ["APK signing/release workflow", "APK signing means proving the app came from you. Android release builds need a keystore, versioning, and a checked release APK."]
 ]);
 
 const tagWords = [
@@ -632,7 +656,8 @@ const tagWords = [
   ["interview", "problem-solving", "dry-run"],
   ["dsa", "algorithms", "complexity"],
   ["projects", "portfolio", "capstone"],
-  ["expert", "modern-java", "performance", "enterprise"]
+  ["expert", "modern-java", "performance", "enterprise"],
+  ["android", "java-android", "activity", "recyclerview", "room", "retrofit", "mvvm", "apk", "offline-first"]
 ];
 
 function slug(text) {
@@ -667,11 +692,45 @@ function analogyFor(topic) {
   if (/test|junit/i.test(topic)) return "A test is like a checklist that proves your code still works after you change it.";
   if (/database|jdbc|dao/i.test(topic)) return "A database is like an organized filing cabinet. JDBC is one way Java talks to that cabinet.";
   if (/thread|concurrency/i.test(topic)) return "Threads are like workers sharing a kitchen. They can work faster, but they need rules so they do not grab the same item at the same time.";
+  if (/android|activity|recyclerview|room|retrofit|apk|mvvm|compose|xml/i.test(topic)) return "An Android app is like a small shop. The screen is the front counter, the ViewModel is the manager, and the repository talks to storage or the network.";
   return `Think of ${topic} as one tool in a developer toolbox. A professional chooses the right tool, gives it a clear name, and keeps it separate from unrelated work.`;
 }
 
 function codeFor(levelId, topic) {
   const t = topic.toLowerCase();
+  if (levelId === 30 && /calculator/.test(t)) {
+    return `// Android Java idea: keep calculator rules outside the Activity.\nclass CalculatorService {\n    int add(int first, int second) {\n        return first + second;\n    }\n}\n\n// In Android Studio, your Activity reads button taps and calls this service.`;
+  }
+  if (levelId === 30 && /to-do|todo/.test(t)) {
+    return `class TodoItem {\n    final String title;\n    final boolean done;\n\n    TodoItem(String title, boolean done) {\n        this.title = title;\n        this.done = done;\n    }\n}\n\nclass TodoViewModel {\n    private final java.util.List<TodoItem> tasks = new java.util.ArrayList<>();\n\n    void addTask(String title) {\n        if (title == null || title.isBlank()) throw new IllegalArgumentException("Title required");\n        tasks.add(new TodoItem(title, false));\n    }\n}`;
+  }
+  if (levelId === 30 && /quiz/.test(t)) {
+    return `class QuizState {\n    private int score;\n    private int questionIndex;\n\n    void answer(boolean correct) {\n        if (correct) score++;\n        questionIndex++;\n    }\n\n    int getScore() { return score; }\n}`;
+  }
+  if (levelId === 30 && /notes|room database|room/.test(t)) {
+    return `// Room concept sketch for Android Studio:\n// @Entity(tableName = "notes")\nclass NoteEntity {\n    int id;\n    String title;\n    String body;\n}\n\n// @Dao methods would insert, update, delete, and query notes locally.`;
+  }
+  if (levelId === 30 && /recyclerview/.test(t)) {
+    return `// RecyclerView idea: adapter owns list rows, not business rules.\nclass LessonRow {\n    final String title;\n    final boolean completed;\n\n    LessonRow(String title, boolean completed) {\n        this.title = title;\n        this.completed = completed;\n    }\n}`;
+  }
+  if (levelId === 30 && /retrofit|api/.test(t)) {
+    return `// Retrofit concept sketch for Android Studio:\ninterface LessonApi {\n    // @GET("lessons")\n    // Call<List<LessonDto>> getLessons();\n}\n\n// Keep API calls in a repository, not directly inside the Activity.`;
+  }
+  if (levelId === 30 && /firebase-free|offline/.test(t)) {
+    return `class OfflineFirstRepository {\n    String loadLesson() {\n        String local = "Room cache lesson";\n        return local.isBlank() ? "Use bundled asset lesson" : local;\n    }\n}`;
+  }
+  if (levelId === 30 && /mvvm/.test(t)) {
+    return `class LessonViewModel {\n    private final LessonRepository repository;\n\n    LessonViewModel(LessonRepository repository) {\n        this.repository = repository;\n    }\n\n    String screenTitle() {\n        return repository.nextLessonTitle();\n    }\n}\n\ninterface LessonRepository {\n    String nextLessonTitle();\n}`;
+  }
+  if (levelId === 30 && /xml|compose/.test(t)) {
+    return `// XML describes views in files. Compose describes UI with Kotlin functions.\n// Java apps can still use XML screens while learning Compose concepts:\nclass UiState {\n    final String title;\n    final boolean loading;\n\n    UiState(String title, boolean loading) {\n        this.title = title;\n        this.loading = loading;\n    }\n}`;
+  }
+  if (levelId === 30 && /apk|signing|release/.test(t)) {
+    return `class ReleaseChecklist {\n    boolean ready(boolean testsPass, boolean versionUpdated, boolean signedApk) {\n        return testsPass && versionUpdated && signedApk;\n    }\n}`;
+  }
+  if (levelId === 30 && /debugging|polish|portfolio/.test(t)) {
+    return `class BugReport {\n    final String steps;\n    final String expected;\n    final String actual;\n\n    BugReport(String steps, String expected, String actual) {\n        this.steps = steps;\n        this.expected = expected;\n        this.actual = actual;\n    }\n}`;
+  }
   if (/programming|program|language|java|source|compilation|bytecode|jdk|jvm|jre|syntax|debug|ide/.test(t)) {
     return `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Java follows clear instructions.");\n    }\n}`;
   }
@@ -687,6 +746,9 @@ function codeFor(levelId, topic) {
   if (/comment/.test(t)) {
     return `public class Main {\n    public static void main(String[] args) {\n        // This line explains the code for humans.\n        System.out.println("Comments do not run.");\n    }\n}`;
   }
+  if (/android studio|intellij|vs code/.test(t)) {
+    return `public class Main {\n    public static void main(String[] args) {\n        System.out.println("An IDE helps you write and run code.");\n    }\n}`;
+  }
   if (/stringbuilder/.test(t)) {
     return `public class Main {\n    public static void main(String[] args) {\n        StringBuilder builder = new StringBuilder();\n        builder.append("Java");\n        builder.append(" Mastery");\n        System.out.println(builder.toString());\n    }\n}`;
   }
@@ -699,7 +761,7 @@ function codeFor(levelId, topic) {
   if (/int|double|float|char|boolean|long|short|byte|variable|data|constant|conversion|casting|naming/.test(t)) {
     return `public class Main {\n    public static void main(String[] args) {\n        int age = 20;\n        double price = 99.50;\n        boolean active = true;\n        String name = "Ali";\n        System.out.println(name + " is " + age + " years old.");\n    }\n}`;
   }
-  if (/operator|arithmetic|assignment|comparison|logical|increment|precedence|formula|boolean expression/.test(t)) {
+  if (/operator|arithmetic|assignment|comparison|logical|increment|precedence|formula|boolean expression|simple math/.test(t)) {
     return `public class Main {\n    public static void main(String[] args) {\n        int marks = 85;\n        boolean passed = marks >= 50 && marks <= 100;\n        System.out.println("Passed: " + passed);\n    }\n}`;
   }
   if (/scanner|input|reading|output|formatting|validation|bill|greeting/.test(t)) {
@@ -1146,8 +1208,55 @@ const projectPractice = [
   "Advanced drill: use sealed interface for result states",
   "Security drill: validate input before saving",
   "Performance drill: compare nested loop and map lookup",
-  "Production drill: create readiness checklist"
+  "Production drill: create readiness checklist",
+  "Android Java calculator: Activity, service, and input validation",
+  "Android Java to-do app: model, adapter, and persistence",
+  "Android Java quiz app: score state and rotation-safe design",
+  "Android Java notes app: local storage without Firebase",
+  "RecyclerView contacts project: adapter and ViewHolder thinking",
+  "Room database notes project: Entity, DAO, Repository",
+  "Retrofit API client project: interface and error handling",
+  "Firebase-free offline Android app: assets, Room cache, and export",
+  "MVVM Android project: ViewModel, Repository, and UI state",
+  "XML UI project: form layouts and resource naming",
+  "Compose concept bridge: state and recomposition mental model",
+  "APK signing project: debug, release, keystore, and versioning",
+  "Build your own HTTP server in Java",
+  "Build your own Redis-style key-value store in Java",
+  "Build your own Git-lite object store in Java",
+  "Build your own grep-style text search tool in Java",
+  "Build your own JSON parser in Java",
+  "Build your own shell command runner in Java",
+  "Build your own load balancer simulator in Java",
+  "Build your own SQLite-style table storage in Java",
+  "Build your own Docker-like process runner concept in Java",
+  "Build your own BitTorrent metadata parser in Java",
+  "Build your own DNS resolver concept in Java",
+  "Build your own URL shortener service design in Java",
+  "Spring Security login flow: protect a page",
+  "Spring Security roles concept: public vs protected routes"
 ];
+
+function levelForProjectTitle(title, index) {
+  const lower = title.toLowerCase();
+  if (
+    lower.includes("android") ||
+    lower.includes("recyclerview") ||
+    lower.includes("room database") ||
+    lower.includes("retrofit") ||
+    lower.includes("firebase-free") ||
+    lower.includes("mvvm") ||
+    lower.includes("xml ui") ||
+    lower.includes("compose concept") ||
+    lower.includes("apk signing")
+  ) {
+    return 30;
+  }
+  if (lower.includes("build your own") || lower.includes("spring security")) {
+    return 29;
+  }
+  return Math.min(29, 5 + Math.floor(index / 2));
+}
 
 const lessonPractice = levels.flatMap(level =>
   level.lessons.map((lesson, index) => ({
@@ -1176,7 +1285,7 @@ const lessonPractice = levels.flatMap(level =>
 );
 
 const projectExercises = projectPractice.map((title, index) => {
-  const levelId = Math.min(29, 5 + Math.floor(index / 2));
+  const levelId = levelForProjectTitle(title, index);
   return {
     id: `project-practice-${index + 1}`,
     title,
@@ -1229,13 +1338,24 @@ const projectExercises = projectPractice.map((title, index) => {
 const practiceExercises = [...lessonPractice, ...projectExercises];
 
 function expectedOutputForCode(code, topic) {
-  const printlnMatches = [...code.matchAll(/System\.out\.println\("([^"]*)"\)/g)].map(match => match[1]);
-  if (printlnMatches.length) return printlnMatches.join("\n");
+  if (code.includes('name + " is " + age + " years old."')) return "Ali is 20 years old.";
+  if (code.includes("cleanName.length()")) return "10";
+  if (code.includes('"Passed: " + passed')) return "Passed: true";
+  if (code.includes("switch (day)")) return "Tuesday";
+  if (code.includes("int marks = 72")) return "Pass";
+  if (code.includes("while (count <= 3)")) return "1\n2\n3";
   if (code.includes("for (int count = 1; count <= 5; count++)")) return "Practice 1\nPractice 2\nPractice 3\nPractice 4\nPractice 5";
   if (code.includes("add(10, 20)")) return "30";
+  if (code.includes("matrix[1][0]")) return "3";
+  if (code.includes("int[] marks = {80, 90, 75}")) return "Total: 245";
+  if (code.includes("factorial(4)")) return "24";
+  if (code.includes('ali.introduce()')) return "Hi, I am Ali";
   if (code.includes("StringBuilder")) return "Java Mastery";
+  if (code.includes("StringBuffer")) return "Safe text update";
   if (code.includes("scores.get(\"Ali\")")) return "95";
   if (code.includes("names.forEach")) return "Ali\nRayyan";
+  const printlnMatches = [...code.matchAll(/System\.out\.println\("([^"]*)"\)/g)].map(match => match[1]);
+  if (printlnMatches.length) return printlnMatches.join("\n");
   return `${topic} practice complete`;
 }
 
@@ -1264,8 +1384,8 @@ const playgroundTasks = [
       tags: lesson.tags
     };
   }),
-  ...projectPractice.slice(0, 30).map((title, index) => {
-    const levelId = Math.min(29, 5 + Math.floor(index / 2));
+  ...projectPractice.map((title, index) => {
+    const levelId = levelForProjectTitle(title, index);
     const starterCode = `class ProjectFeature {\n    String run() {\n        return "${title.replace(/"/g, "")}";\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        ProjectFeature feature = new ProjectFeature();\n        System.out.println(feature.run());\n    }\n}`;
     return {
       id: `playground-project-${index + 1}`,
@@ -1512,6 +1632,251 @@ const capstoneProjects = [
     ],
     "3",
     ["capstone", "dsa", "binary-search", "interview"]
+  ),
+  capstone(
+    "capstone-android-calculator-simulator",
+    "Android Java Calculator Architecture",
+    30,
+    "Build the Java logic behind an Android calculator and keep Activity-style code thin.",
+    "A calculator app screen should collect input and display output, while CalculatorService owns the math rules and validation.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main simulates the Activity calling a ViewModel.",
+        content: `public class Main {\n    public static void main(String[] args) {\n        CalculatorViewModel viewModel = new CalculatorViewModel(new CalculatorService());\n        System.out.println(viewModel.addText("20", "22"));\n    }\n}`
+      },
+      {
+        path: "CalculatorService.java",
+        explanation: "CalculatorService owns arithmetic and input conversion rules.",
+        content: `public class CalculatorService {\n    public int add(String firstText, String secondText) {\n        int first = Integer.parseInt(firstText.trim());\n        int second = Integer.parseInt(secondText.trim());\n        return first + second;\n    }\n}`
+      },
+      {
+        path: "CalculatorViewModel.java",
+        explanation: "The ViewModel turns UI text into display text without knowing about Android widgets.",
+        content: `public class CalculatorViewModel {\n    private final CalculatorService service;\n\n    public CalculatorViewModel(CalculatorService service) {\n        this.service = service;\n    }\n\n    public String addText(String first, String second) {\n        return String.valueOf(service.add(first, second));\n    }\n}`
+      }
+    ],
+    "42",
+    ["capstone", "android", "calculator", "mvvm", "validation"]
+  ),
+  capstone(
+    "capstone-android-todo-room-simulator",
+    "Android To-do Room Architecture",
+    30,
+    "Model a Firebase-free to-do app with repository and local persistence thinking.",
+    "A to-do app needs tasks that survive app restarts. This compile-safe simulator mirrors Entity, DAO, Repository, and ViewModel responsibilities.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main simulates the screen asking the ViewModel for open task count.",
+        content: `public class Main {\n    public static void main(String[] args) {\n        TodoViewModel viewModel = new TodoViewModel(new TaskRepository(new FakeTaskDao()));\n        viewModel.add("Study RecyclerView");\n        viewModel.add("Practice Room");\n        System.out.println(viewModel.openTaskCount() + " open tasks");\n    }\n}`
+      },
+      {
+        path: "Task.java",
+        explanation: "Task is the model. In Android Room this would become an Entity.",
+        content: `public class Task {\n    private final String title;\n    private boolean done;\n\n    public Task(String title) {\n        if (title == null || title.isBlank()) throw new IllegalArgumentException("Title required");\n        this.title = title;\n    }\n\n    public boolean isDone() { return done; }\n    public String getTitle() { return title; }\n}`
+      },
+      {
+        path: "FakeTaskDao.java",
+        explanation: "FakeTaskDao behaves like a tiny in-memory DAO for offline validation.",
+        content: `import java.util.ArrayList;\nimport java.util.List;\n\npublic class FakeTaskDao {\n    private final List<Task> tasks = new ArrayList<>();\n\n    public void insert(Task task) { tasks.add(task); }\n    public List<Task> all() { return tasks; }\n}`
+      },
+      {
+        path: "TaskRepository.java",
+        explanation: "Repository hides the storage details from the ViewModel.",
+        content: `public class TaskRepository {\n    private final FakeTaskDao dao;\n\n    public TaskRepository(FakeTaskDao dao) {\n        this.dao = dao;\n    }\n\n    public void add(String title) { dao.insert(new Task(title)); }\n    public long openCount() { return dao.all().stream().filter(task -> !task.isDone()).count(); }\n}`
+      },
+      {
+        path: "TodoViewModel.java",
+        explanation: "ViewModel exposes screen-friendly actions and state.",
+        content: `public class TodoViewModel {\n    private final TaskRepository repository;\n\n    public TodoViewModel(TaskRepository repository) {\n        this.repository = repository;\n    }\n\n    public void add(String title) { repository.add(title); }\n    public long openTaskCount() { return repository.openCount(); }\n}`
+      }
+    ],
+    "2 open tasks",
+    ["capstone", "android", "room", "offline", "mvvm"]
+  ),
+  capstone(
+    "capstone-android-retrofit-offline-simulator",
+    "Android Retrofit Offline Fallback",
+    30,
+    "Practice an API repository that can fall back to local cached content.",
+    "A professional Android app should not become useless when a network request fails. This project models API, cache, and repository boundaries.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main asks the repository for a lesson title.",
+        content: `public class Main {\n    public static void main(String[] args) {\n        LessonRepository repository = new LessonRepository(new ApiClient(), new LessonCache());\n        System.out.println(repository.loadTitle());\n    }\n}`
+      },
+      {
+        path: "ApiClient.java",
+        explanation: "ApiClient stands in for Retrofit. It fails so the fallback path can be tested.",
+        content: `public class ApiClient {\n    public String fetchTitle() {\n        throw new IllegalStateException("Network unavailable");\n    }\n}`
+      },
+      {
+        path: "LessonCache.java",
+        explanation: "LessonCache stands in for Room or bundled asset storage.",
+        content: `public class LessonCache {\n    public String cachedTitle() {\n        return "Loaded cached lesson";\n    }\n}`
+      },
+      {
+        path: "LessonRepository.java",
+        explanation: "Repository decides whether to use network data or cached data.",
+        content: `public class LessonRepository {\n    private final ApiClient api;\n    private final LessonCache cache;\n\n    public LessonRepository(ApiClient api, LessonCache cache) {\n        this.api = api;\n        this.cache = cache;\n    }\n\n    public String loadTitle() {\n        try {\n            return api.fetchTitle();\n        } catch (RuntimeException ex) {\n            return cache.cachedTitle();\n        }\n    }\n}`
+      }
+    ],
+    "Loaded cached lesson",
+    ["capstone", "android", "retrofit", "offline-first", "repository"]
+  ),
+  capstone(
+    "capstone-android-release-checklist",
+    "Android APK Signing Checklist",
+    30,
+    "Create a release-readiness checker for APK builds.",
+    "Before sharing an APK, a developer checks tests, version name, version code, release signing, and backup of the keystore.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main verifies one release candidate.",
+        content: `public class Main {\n    public static void main(String[] args) {\n        ReleaseChecklist checklist = new ReleaseChecklist();\n        boolean ready = checklist.ready(true, true, true, true);\n        System.out.println(ready ? "Release ready" : "Fix release");\n    }\n}`
+      },
+      {
+        path: "ReleaseChecklist.java",
+        explanation: "ReleaseChecklist keeps release rules in one testable place.",
+        content: `public class ReleaseChecklist {\n    public boolean ready(boolean testsPass, boolean versionUpdated, boolean signed, boolean keystoreBackedUp) {\n        return testsPass && versionUpdated && signed && keystoreBackedUp;\n    }\n}`
+      }
+    ],
+    "Release ready",
+    ["capstone", "android", "apk", "release", "signing"]
+  ),
+  capstone(
+    "capstone-http-server-core",
+    "Build Your Own HTTP Server Core",
+    29,
+    "Parse a tiny HTTP request and produce a valid response string.",
+    "Inspired by from-scratch web-server learning, this project focuses on the core request-response idea before adding real sockets and threads.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main sends a sample request into the server core.",
+        content: `public class Main {\n    public static void main(String[] args) {\n        HttpServerCore server = new HttpServerCore();\n        System.out.println(server.handle("GET / HTTP/1.1").split("\\\\r?\\\\n")[0]);\n    }\n}`
+      },
+      {
+        path: "HttpServerCore.java",
+        explanation: "HttpServerCore chooses a response without depending on network sockets.",
+        content: `public class HttpServerCore {\n    public String handle(String requestLine) {\n        if (requestLine == null || !requestLine.startsWith("GET ")) {\n            return "HTTP/1.1 400 Bad Request\\r\\n\\r\\nBad request";\n        }\n        return "HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\n\\r\\nHello from Java";\n    }\n}`
+      }
+    ],
+    "HTTP/1.1 200 OK",
+    ["capstone", "build-your-own", "http", "server", "networking"]
+  ),
+  capstone(
+    "capstone-json-parser-mini",
+    "Build Your Own JSON Parser Mini",
+    29,
+    "Extract key-value pairs from a tiny flat JSON object.",
+    "This project teaches careful string parsing, edge cases, and when a real library is the better production choice.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main parses a small JSON object and prints one value.",
+        content: `public class Main {\n    public static void main(String[] args) {\n        MiniJsonParser parser = new MiniJsonParser();\n        System.out.println(parser.valueOf("{\\"name\\":\\"Ali\\",\\"level\\":\\"Java\\"}", "name"));\n    }\n}`
+      },
+      {
+        path: "MiniJsonParser.java",
+        explanation: "MiniJsonParser handles a small learning case, not full JSON.",
+        content: `public class MiniJsonParser {\n    public String valueOf(String json, String key) {\n        String normalized = json.replace("{", "").replace("}", "").replace("\\"", "");\n        for (String part : normalized.split(",")) {\n            String[] pair = part.split(":", 2);\n            if (pair.length == 2 && pair[0].trim().equals(key)) {\n                return pair[1].trim();\n            }\n        }\n        return "";\n    }\n}`
+      }
+    ],
+    "Ali",
+    ["capstone", "build-your-own", "parser", "json", "strings"]
+  ),
+  capstone(
+    "capstone-git-lite-object-store",
+    "Build Your Own Git-lite Object Store",
+    29,
+    "Store content by a stable hash-like key and retrieve it later.",
+    "A real Git object store is deeper, but this project introduces the idea of content-addressed storage with clean boundaries.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main stores and reads one text object.",
+        content: `public class Main {\n    public static void main(String[] args) {\n        ObjectStore store = new ObjectStore();\n        String key = store.save("hello");\n        System.out.println(store.read(key));\n    }\n}`
+      },
+      {
+        path: "ObjectStore.java",
+        explanation: "ObjectStore hides key generation and storage details.",
+        content: `import java.util.HashMap;\nimport java.util.Map;\n\npublic class ObjectStore {\n    private final Map<String, String> objects = new HashMap<>();\n\n    public String save(String content) {\n        String key = Integer.toHexString(content.hashCode());\n        objects.put(key, content);\n        return key;\n    }\n\n    public String read(String key) {\n        return objects.getOrDefault(key, "missing");\n    }\n}`
+      }
+    ],
+    "hello",
+    ["capstone", "build-your-own", "git", "hashmap", "storage"]
+  ),
+  capstone(
+    "capstone-grep-text-search",
+    "Build Your Own Grep-style Search",
+    29,
+    "Search lines of text and count matches.",
+    "A grep-style tool teaches command-line thinking, loops, string matching, and testable services.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main counts matching lines.",
+        content: `import java.util.List;\n\npublic class Main {\n    public static void main(String[] args) {\n        GrepService grep = new GrepService();\n        System.out.println(grep.countMatches(List.of("java", "kotlin", "java mastery"), "java"));\n    }\n}`
+      },
+      {
+        path: "GrepService.java",
+        explanation: "GrepService owns the search rule.",
+        content: `import java.util.List;\n\npublic class GrepService {\n    public long countMatches(List<String> lines, String needle) {\n        return lines.stream().filter(line -> line.contains(needle)).count();\n    }\n}`
+      }
+    ],
+    "2",
+    ["capstone", "build-your-own", "grep", "strings", "cli"]
+  ),
+  capstone(
+    "capstone-key-value-store",
+    "Build Your Own Redis-style Key-value Store",
+    29,
+    "Create a tiny in-memory SET/GET store.",
+    "A key-value store teaches maps, command design, validation, and the beginning of database thinking.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main stores and retrieves one value.",
+        content: `public class Main {\n    public static void main(String[] args) {\n        KeyValueStore store = new KeyValueStore();\n        store.set("foo", "bar");\n        System.out.println(store.get("foo"));\n    }\n}`
+      },
+      {
+        path: "KeyValueStore.java",
+        explanation: "KeyValueStore owns storage and key validation.",
+        content: `import java.util.HashMap;\nimport java.util.Map;\n\npublic class KeyValueStore {\n    private final Map<String, String> values = new HashMap<>();\n\n    public void set(String key, String value) {\n        if (key == null || key.isBlank()) throw new IllegalArgumentException("Key required");\n        values.put(key, value);\n    }\n\n    public String get(String key) {\n        return values.getOrDefault(key, "nil");\n    }\n}`
+      }
+    ],
+    "bar",
+    ["capstone", "build-your-own", "database", "map", "redis"]
+  ),
+  capstone(
+    "capstone-spring-security-flow-simulator",
+    "Spring Security Login Flow Simulator",
+    29,
+    "Model public and protected routes before wiring a real Spring Boot app.",
+    "Spring Security protects routes with authentication and authorization. This plain Java simulator checks the core idea offline.",
+    [
+      {
+        path: "Main.java",
+        explanation: "Main signs in one user and requests a protected page.",
+        content: `public class Main {\n    public static void main(String[] args) {\n        SecurityService security = new SecurityService();\n        User user = new User("Ali", "USER");\n        System.out.println(security.protectedPage(user));\n    }\n}`
+      },
+      {
+        path: "User.java",
+        explanation: "User represents authenticated identity and role.",
+        content: `public class User {\n    private final String name;\n    private final String role;\n\n    public User(String name, String role) {\n        this.name = name;\n        this.role = role;\n    }\n\n    public String getName() { return name; }\n    public String getRole() { return role; }\n}`
+      },
+      {
+        path: "SecurityService.java",
+        explanation: "SecurityService decides whether a user can see a protected resource.",
+        content: `public class SecurityService {\n    public String protectedPage(User user) {\n        if (user == null) return "Please sign in";\n        if (!"USER".equals(user.getRole()) && !"ADMIN".equals(user.getRole())) return "Forbidden";\n        return "Welcome " + user.getName();\n    }\n}`
+      }
+    ],
+    "Welcome Ali",
+    ["capstone", "spring", "security", "authentication", "authorization"]
   )
 ];
 
@@ -1555,7 +1920,10 @@ const achievementSeed = [
   ["security_minded", "Security Minded", "You practiced validating input and preventing unsafe code.", "Study secure coding"],
   ["performance_minded", "Performance Minded", "You practiced measuring and improving performance.", "Study performance"],
   ["interview_ready", "Interview Ready", "You practiced explaining solutions and trade-offs.", "Study interview level"],
-  ["java_academy_finisher", "Java Academy Finisher", "You completed the full academy path.", "Complete all lessons"]
+  ["java_academy_finisher", "Java Academy Finisher", "You completed the full academy path.", "Complete all lessons"],
+  ["android_track_starter", "Android Track Starter", "You opened the Java for Android developer track.", "Reach level 30"],
+  ["android_portfolio_builder", "Android Portfolio Builder", "You practiced Android calculator, to-do, quiz, notes, Room, Retrofit, MVVM, and APK release ideas.", "Complete Android project practice"],
+  ["build_your_own_builder", "Build Your Own Builder", "You started recreating developer tools from first principles.", "Open build-your-own capstones"]
 ];
 
 const achievements = achievementSeed.map(([id, title, description, rule]) => ({ id, title, description, rule }));
@@ -1585,6 +1953,32 @@ for (let start = 0; start < 30; start += 5) {
     title: `Final Exam: Levels ${start}-${end}`,
     levelStart: start,
     levelEnd: end,
+    questions
+  });
+}
+
+if (levels[30]) {
+  const questions = [];
+  for (let i = 0; i < 25; i++) {
+    const lesson = levels[30].lessons[i % levels[30].lessons.length];
+    questions.push({
+      id: `final-android-track-q${i + 1}`,
+      question: `Android developer final: what is the strongest job-ready approach for ${lesson.title}?`,
+      options: [
+        "Keep UI, state, data, validation, and release checks in clear layers that can be tested",
+        "Put all Android logic directly inside one Activity method",
+        "Skip local storage because every app must use a paid backend",
+        "Release an APK without testing, versioning, or signing checks"
+      ],
+      correctAnswerIndex: 0,
+      explanation: "Professional Android Java work needs clean boundaries: screens show state, ViewModels prepare state, repositories handle data, and release builds are checked carefully."
+    });
+  }
+  finalExams.push({
+    id: "final-android-track",
+    title: "Final Exam: Java for Android Developer Track",
+    levelStart: 30,
+    levelEnd: 30,
     questions
   });
 }
@@ -1621,6 +2015,24 @@ const curriculum = {
       url: "https://www.kaggle.com/api/v1/datasets/list?search=java%20programming",
       license: "Mixed public licenses, including Apache 2.0 and CC0 in downloaded small datasets",
       usage: "Downloaded only for optional context about programming language popularity; not needed by the APK."
+    },
+    {
+      name: "CodeCrafters Build Your Own X",
+      url: "https://github.com/codecrafters-io/build-your-own-x",
+      license: "CC0-style waiver stated by the repository maintainers",
+      usage: "Used as inspiration for original from-scratch Java project prompts such as HTTP server core, JSON parser, grep search, key-value store, and Git-lite storage."
+    },
+    {
+      name: "JavaRevisited Simple HTTP Server with ServerSocket",
+      url: "https://javarevisited.blogspot.com/2015/06/how-to-create-http-server-in-java-serversocket-example.html",
+      license: "Reference article; do not copy text or code directly without permission",
+      usage: "Used only as conceptual inspiration for original HTTP request-response lessons and capstones."
+    },
+    {
+      name: "Spring Guide: Securing a Web Application",
+      url: "https://spring.io/guides/gs/securing-web/",
+      license: "Spring guide notes Apache 2.0 for code and Creative Commons Attribution-NoDerivatives for writing",
+      usage: "Used as official conceptual reference for original Spring Security login-flow simulator content."
     }
   ]
 };
@@ -1628,8 +2040,14 @@ const curriculum = {
 const outFile = path.join(outDir, "curriculum.json");
 fs.writeFileSync(outFile, JSON.stringify(curriculum, null, 2));
 
+const webOutDir = path.join("web", "data");
+fs.mkdirSync(webOutDir, { recursive: true });
+const webOutFile = path.join(webOutDir, "curriculum.json");
+fs.writeFileSync(webOutFile, JSON.stringify(curriculum, null, 2));
+
 const lessons = levels.flatMap(level => level.lessons);
 console.log(`Wrote ${outFile}`);
+console.log(`Wrote ${webOutFile}`);
 console.log(JSON.stringify({
   levels: levels.length,
   lessons: lessons.length,
